@@ -4,7 +4,41 @@ from supabase import create_client
 
 # --- PENGATURAN HALAMAN ---
 st.set_page_config(page_title="Super Admin - eRaport", page_icon="👁️", layout="wide")
+# --- HEADER DASBOR UTAMA ---
+col_judul, col_logout = st.columns([8, 2])
+with col_judul:
+    st.title("👁️ Menara Pengawas app_eraportDiniyah")
+    st.caption("Administrator: dasnkita | Email Sistem: tasikita@gmail.com")
+with col_logout:
+    if st.button("🚪 Keluar", width='stretch'):
+        st.session_state.admin_logged_in = False
+        st.rerun()
 
+st.markdown("---")
+
+# ==========================================
+# --- SIDEBAR: PINTASAN INFRASTRUKTUR ---
+# ==========================================
+with st.sidebar:
+    st.markdown("### 🔗 Pintasan Infrastruktur")
+    st.write("Akses cepat ke pusat kendali server Anda:")
+    
+    # Link langsung ke Dashboard Project Supabase Anda
+    st.link_button("🗄️ Dasbor Supabase", "https://supabase.com/dashboard/project/gxrhvxnubqrpzjngxpsr", use_container_width=True)
+    
+    # Link langsung ke Repositori GitHub Super Admin Anda
+    st.link_button("🐙 Repositori GitHub", "https://github.com/danskita/admin-eraport", use_container_width=True)
+    
+    # Link ke Streamlit Community Cloud
+    st.link_button("☁️ Streamlit Cloud", "https://share.streamlit.io/", use_container_width=True)
+    
+    st.divider()
+    st.caption("⚠️ Tombol ini hanya muncul di dasbor Super Admin dan aman dari jangkauan madrasah.")
+# ==========================================
+
+# --- TARIK DATA DARI SUPABASE ---
+# Kita tarik semua data lembaga dari database
+# ... (lanjutan kode Anda di bawahnya tetap sama) ...
 # --- INISIALISASI SUPABASE ---
 @st.cache_resource
 def init_connection():
@@ -19,7 +53,7 @@ if 'admin_logged_in' not in st.session_state:
     st.session_state.admin_logged_in = False
 
 if not st.session_state.admin_logged_in:
-    st.title("🔐 Login Super Admin e-Raport")
+    st.title("🔐 Login Super Admin app_eraportDiniyah")
     st.markdown("Dasbor khusus pemantauan dan persetujuan akun madrasah.")
     
     with st.form("form_login_admin"):
@@ -37,7 +71,7 @@ if not st.session_state.admin_logged_in:
 # --- HEADER DASBOR UTAMA ---
 col_judul, col_logout = st.columns([8, 2])
 with col_judul:
-    st.title("👁️ Menara Pengawas e-Raport MDTU")
+    st.title("👁️ Menara Pengawas e-RaportDiniyah")
 with col_logout:
     if st.button("🚪 Keluar", width='stretch'):
         st.session_state.admin_logged_in = False
