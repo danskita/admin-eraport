@@ -3,7 +3,37 @@ import pandas as pd
 from supabase import create_client
 
 # --- PENGATURAN HALAMAN ---
-st.set_page_config(page_title="Super Admin - eRaport", page_icon="👁️", layout="wide")
+st.set_page_config(page_title="Super Admin - app_eraportDiniyah", page_icon="👁️", layout="wide")
+
+# --- INISIALISASI SUPABASE ---
+@st.cache_resource
+def init_connection():
+    url = st.secrets["SUPABASE_URL"]
+    key = st.secrets["SUPABASE_KEY"]
+    return create_client(url, key)
+
+supabase = init_connection()
+
+# --- SISTEM LOGIN SUPER ADMIN ---
+if 'admin_logged_in' not in st.session_state:
+    st.session_state.admin_logged_in = False
+
+if not st.session_state.admin_logged_in:
+    st.title("🔐 Login Super Admin app_eraportDiniyah")
+    st.markdown("Dasbor khusus pemantauan dan persetujuan akun madrasah oleh Admin: dasnkita.")
+    
+    with st.form("form_login_admin"):
+        pin = st.text_input("Masukkan PIN Rahasia", type="password")
+        submit = st.form_submit_button("Masuk Dasbor")
+        
+        if submit:
+            if pin == "123456": # SILAKAN GANTI PIN RAHASIA INI NANTI
+                st.session_state.admin_logged_in = True
+                st.rerun()
+            else:
+                st.error("❌ PIN Salah! Akses ditolak.")
+    st.stop()
+
 # --- HEADER DASBOR UTAMA ---
 col_judul, col_logout = st.columns([8, 2])
 with col_judul:
@@ -23,10 +53,10 @@ with st.sidebar:
     st.markdown("### 🔗 Pintasan Infrastruktur")
     st.write("Akses cepat ke pusat kendali server Anda:")
     
-    # Link langsung ke Dashboard Project Supabase Anda
+    # Link langsung ke Dashboard Project Supabase
     st.link_button("🗄️ Dasbor Supabase", "https://supabase.com/dashboard/project/gxrhvxnubqrpzjngxpsr", use_container_width=True)
     
-    # Link langsung ke Repositori GitHub Super Admin Anda
+    # Link langsung ke Repositori GitHub
     st.link_button("🐙 Repositori GitHub", "https://github.com/danskita/admin-eraport", use_container_width=True)
     
     # Link ke Streamlit Community Cloud
@@ -35,49 +65,6 @@ with st.sidebar:
     st.divider()
     st.caption("⚠️ Tombol ini hanya muncul di dasbor Super Admin dan aman dari jangkauan madrasah.")
 # ==========================================
-
-# --- TARIK DATA DARI SUPABASE ---
-# Kita tarik semua data lembaga dari database
-# ... (lanjutan kode Anda di bawahnya tetap sama) ...
-# --- INISIALISASI SUPABASE ---
-@st.cache_resource
-def init_connection():
-    url = st.secrets["SUPABASE_URL"]
-    key = st.secrets["SUPABASE_KEY"]
-    return create_client(url, key)
-
-supabase = init_connection()
-
-# --- SISTEM LOGIN SUPER ADMIN ---
-if 'admin_logged_in' not in st.session_state:
-    st.session_state.admin_logged_in = False
-
-if not st.session_state.admin_logged_in:
-    st.title("🔐 Login Super Admin app_eraportDiniyah")
-    st.markdown("Dasbor khusus pemantauan dan persetujuan akun madrasah.")
-    
-    with st.form("form_login_admin"):
-        pin = st.text_input("Masukkan PIN Rahasia", type="password")
-        submit = st.form_submit_button("Masuk Dasbor")
-        
-        if submit:
-            if pin == "123456": # SILAKAN GANTI PIN RAHASIA INI NANTI
-                st.session_state.admin_logged_in = True
-                st.rerun()
-            else:
-                st.error("❌ PIN Salah! Akses ditolak.")
-    st.stop()
-
-# --- HEADER DASBOR UTAMA ---
-col_judul, col_logout = st.columns([8, 2])
-with col_judul:
-    st.title("👁️ Menara Pengawas e-RaportDiniyah")
-with col_logout:
-    if st.button("🚪 Keluar", width='stretch'):
-        st.session_state.admin_logged_in = False
-        st.rerun()
-
-st.markdown("---")
 
 # --- TARIK DATA DARI SUPABASE ---
 try:
@@ -124,14 +111,13 @@ with tab_verifikasi:
                             st.error(f"Gagal menyetujui: {e}")
                 st.divider()
 
-# 2. TAB MANAJEMEN & KEAMANAN AKUN (FITUR BARU)
+# 2. TAB MANAJEMEN & KEAMANAN AKUN
 with tab_manajemen:
     st.subheader("Manajemen Hak Akses & Bantuan Sandi")
     st.write("Di sini Anda bisa memantau, memblokir, atau membantu mereset kata sandi madrasah yang lupa.")
     
     if data_lembaga:
         for m in data_lembaga:
-            # Gunakan st.expander agar tampilan tetap rapi meskipun ada ratusan madrasah
             status_ikon = "Aktif ✅" if m.get("is_active") else "Ditangguhkan / Antre ⏳"
             with st.expander(f"🏫 {m.get('nama_madrasah', 'Tanpa Nama')} - {m.get('email', '-')} (Status: {status_ikon})"):
                 
@@ -145,7 +131,6 @@ with tab_manajemen:
                     # FITUR RESET PASSWORD
                     if st.button("🔑 Kirim Link Reset Password", key=f"btn_reset_{m['id']}"):
                         try:
-                            # Memanggil API bawaan Supabase untuk mengirim email reset
                             supabase.auth.reset_password_email(m.get('email'))
                             st.success(f"Link reset sandi berhasil dikirim ke {m.get('email')}")
                         except Exception as e:
