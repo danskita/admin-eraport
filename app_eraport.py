@@ -27,7 +27,7 @@ if not st.session_state.admin_logged_in:
         submit = st.form_submit_button("Masuk Dasbor")
         
         if submit:
-            if pin == "123456": # SILAKAN GANTI PIN RAHASIA INI NANTI
+            if pin == "123456": # SILAKAN GANTI PIN RAHASIA INI NANTI SECARA BERKALA
                 st.session_state.admin_logged_in = True
                 st.rerun()
             else:
@@ -40,7 +40,7 @@ with col_judul:
     st.title("👁️ Menara Pengawas app_eraportDiniyah")
     st.caption("Administrator: dasnkita | Email Sistem: tasikita@gmail.com")
 with col_logout:
-    if st.button("🚪 Keluar", width='stretch'):
+    if st.button("🚪 Keluar", use_container_width=True):
         st.session_state.admin_logged_in = False
         st.rerun()
 
@@ -64,17 +64,19 @@ with st.sidebar:
     
     st.divider()
     st.caption("⚠️ Tombol ini hanya muncul di dasbor Super Admin dan aman dari jangkauan madrasah.")
-# ==========================================
 
-# --- TARIK DATA DARI SUPABASE ---
+# ==========================================
+# --- TARIK DATA LEMBAGA DARI SUPABASE ---
+# ==========================================
 try:
+    # Memastikan Super Admin HANYA mengelola tabel 'lembaga', bukan tabel 'guru'
     response = supabase.table("lembaga").select("*").execute()
     data_lembaga = response.data if response.data else []
 except Exception as e:
     st.error(f"Gagal mengambil data dari Supabase: {e}")
     data_lembaga = []
 
-# Membongkar JSONB untuk dibaca
+# Membongkar JSONB untuk dibaca (jika ada struktur bersarang)
 for d in data_lembaga:
     profil = d.get("profil_lengkap", {})
     d["kabupaten_kota"] = profil.get("kabupaten_kota", "-")
@@ -85,7 +87,7 @@ tab_verifikasi, tab_manajemen, tab_statistik = st.tabs([
     "🚦 Antrean Verifikasi", "🛡️ Manajemen & Keamanan Akun", "📊 Statistik Global"
 ])
 
-# 1. TAB ANTREAN VERIFIKASI
+# 1. TAB ANTREAN VERIFIKASI (MENGAKTIFKAN MADRASAH BARU)
 with tab_verifikasi:
     st.subheader("Madrasah Menunggu Persetujuan")
     st.info("Madrasah di bawah ini sudah mendaftar, tetapi belum bisa login sebelum Anda klik 'Setujui'.")
@@ -109,9 +111,9 @@ with tab_verifikasi:
                             st.rerun()
                         except Exception as e:
                             st.error(f"Gagal menyetujui: {e}")
-                st.divider()
+            st.divider()
 
-# 2. TAB MANAJEMEN & KEAMANAN AKUN
+# 2. TAB MANAJEMEN & KEAMANAN AKUN LEMBAGA
 with tab_manajemen:
     st.subheader("Manajemen Hak Akses & Bantuan Sandi")
     st.write("Di sini Anda bisa memantau, memblokir, atau membantu mereset kata sandi madrasah yang lupa.")
@@ -128,7 +130,7 @@ with tab_manajemen:
                     st.write(f"**Wilayah:** {m.get('kabupaten_kota', '-')}, {m.get('provinsi', '-')}")
                 
                 with c_aksi1:
-                    # FITUR RESET PASSWORD
+                    # FITUR RESET PASSWORD (Dikirim ke email lembaga)
                     if st.button("🔑 Kirim Link Reset Password", key=f"btn_reset_{m['id']}"):
                         try:
                             supabase.auth.reset_password_email(m.get('email'))
@@ -137,7 +139,7 @@ with tab_manajemen:
                             st.error(f"Gagal mengirim email. Error: {e}")
                             
                 with c_aksi2:
-                    # FITUR SUSPEND / BLOKIR
+                    # FITUR SUSPEND / BLOKIR LEMBAGA
                     if m.get('is_active'):
                         if st.button("🚫 Blokir / Suspend Akun", key=f"btn_blokir_{m['id']}"):
                             try:
