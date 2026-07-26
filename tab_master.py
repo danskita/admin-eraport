@@ -99,7 +99,7 @@ MDTU 4 : Al-Qur'an Hadits, Aqidah Akhlak, Fiqih, Sejarah Kebudayaan Islam, Bahas
             with col3:
                 nik = st.text_input("NIK (Opsional)")
                 tempat_lahir = st.text_input("Tempat Lahir (Opsional)")
-                # Kalender Tambah Guru (Sudah dibuka)
+                # Kalender Tambah Guru (Tahun Dibuka)
                 tgl_lahir = st.date_input("Tanggal Lahir", value=date(1990, 1, 1), min_value=date(1940, 1, 1), max_value=date.today())
                 jk = st.selectbox("Jenis Kelamin", ["Laki-laki", "Perempuan"])
             with col4:
@@ -153,7 +153,7 @@ MDTU 4 : Al-Qur'an Hadits, Aqidah Akhlak, Fiqih, Sejarah Kebudayaan Islam, Bahas
                         try: tgl_val = datetime.strptime(tgl_str, "%Y-%m-%d").date() if tgl_str else date(1990, 1, 1)
                         except: tgl_val = date(1990, 1, 1)
                         
-                        # Kalender Edit Guru (SEKARANG SUDAH DIBUKA BATASANNYA)
+                        # Kalender Edit Guru (Tahun Dibuka)
                         e_tgl = st.date_input("Tanggal Lahir", value=tgl_val, min_value=date(1940, 1, 1), max_value=date.today())
                         
                         jks = ["Laki-laki", "Perempuan"]

@@ -5,7 +5,6 @@ def render(db):
     st.header("👤 Profil & Biodata Diri")
     
     # ⛔ BLOKIR KEPALA MADRASAH
-    # Kepala Madrasah tidak butuh profil guru, karena ia memantau data madrasah
     if getattr(db, 'role', '') == 'kepala_madrasah':
         st.info("💡 Halaman ini dirancang khusus untuk Guru / Wali Kelas agar mereka bisa melengkapi biodata dan mengubah password mereka sendiri.")
         return
@@ -21,8 +20,11 @@ def render(db):
     
     my_data = None
     for g in daftar_guru:
-        # Mencocokkan data login dengan database guru
-        if g.get('nama_guru') == nama_guru_aktif and g.get('kelas_binaan') == kelas_binaan_aktif:
+        # Mencocokkan nama guru dan kelas binaan dengan aman
+        s_kelas_db = str(g.get('kelas_binaan') or '').strip().upper()
+        s_kelas_aktif = str(kelas_binaan_aktif or '').strip().upper()
+        
+        if g.get('nama_guru') == nama_guru_aktif and s_kelas_db == s_kelas_aktif:
             my_data = g
             break
             
@@ -56,7 +58,7 @@ def render(db):
             e_nik = st.text_input("NIK (Nomor Induk Kependudukan)", value=my_data.get('nik', '') or "")
             e_tempat = st.text_input("Tempat Lahir", value=my_data.get('tempat_lahir', '') or "")
             
-            # Konversi Tanggal dengan rentang min_value & max_value agar terbuka lebar
+            # Konversi Tanggal
             tgl_str = my_data.get('tanggal_lahir')
             try: 
                 tgl_val = datetime.strptime(tgl_str, "%Y-%m-%d").date() if tgl_str else date(1990, 1, 1)
@@ -67,7 +69,8 @@ def render(db):
                 "Tanggal Lahir", 
                 value=tgl_val,
                 min_value=date(1940, 1, 1),
-                max_value=date.today()
+                max_value=date.today(),
+                format="DD/MM/YYYY"
             )
             
             # Dropdown Jenis Kelamin
@@ -82,19 +85,22 @@ def render(db):
             
             # Fitur Ubah Password Mandiri
             st.markdown("<br>", unsafe_allow_html=True)
-            e_password = st.text_input("🔑 Ubah Password (Opsional)", type="password", help="Isi bagian ini HANYA jika Anda ingin mengubah password yang diberikan oleh Kepala Madrasah. Kosongkan jika tidak ingin mengubah sandi.")
+            e_password = st.text_input(
+                "🔑 Ubah Password (Opsional)", 
+                type="password", 
+                help="Isi bagian ini HANYA jika Anda ingin mengubah password yang diberikan oleh Kepala Madrasah. Kosongkan jika tidak ingin mengubah sandi."
+            )
             
         submit_profil = st.form_submit_button("💾 Simpan Biodata Saya", use_container_width=True)
         
         if submit_profil:
-            # Menyimpan data kembali ke database
             sukses, pesan = db.update_akun_guru(
                 guru_id=my_data['id'],
-                nama_guru=my_data['nama_guru'],      # Tetap pakai nama asli (locked)
-                username=my_data['username'],        # Tetap pakai username asli (locked)
-                password=e_password,                 # Password baru (jika diisi)
-                role=my_data['role'],                # Role asli (locked)
-                kelas_binaan=my_data['kelas_binaan'],# Kelas asli (locked)
+                nama_guru=my_data['nama_guru'],
+                username=my_data['username'],
+                password=e_password,
+                role=my_data['role'],
+                kelas_binaan=my_data['kelas_binaan'],
                 nik=e_nik,
                 jk=e_jk,
                 tempat_lahir=e_tempat,
