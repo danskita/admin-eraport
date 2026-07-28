@@ -24,20 +24,24 @@ def render(db):
     pengaturan_lama = db.data_lembaga.get("pengaturan_master") or {}
     kelas_mapel = pengaturan_lama.get("kelas_mapel", {})
     
-    teks_default_nasional = """TKA A : Iqro, Tahfidz, Doa dan Dzikir Harian, Dinul Islam / Aqidah Akhlak, Fiqih Ibadah, Khat / Imla, Tarikh / Sejarah Islam, Mulok
-TKA B :  Iqro, Tahfidz, Doa dan Dzikir Harian, Dinul Islam / Aqidah Akhlak, Fiqih Ibadah, Khat / Imla, Tarikh / Sejarah Islam, Mulok
-TPA A :  Iqro, Tahfidz, Doa dan Dzikir Harian, Dinul Islam / Aqidah Akhlak, Fiqih Ibadah, Khat / Imla, Tarikh / Sejarah Islam, Mulok
-TPA B :  Iqro, Tahfidz, Doa dan Dzikir Harian, Dinul Islam / Aqidah Akhlak, Fiqih Ibadah, Khat / Imla, Tarikh / Sejarah Islam, Mulok
-MDTU 1 : Al-Qur'an, Hadits, Aqidah Akhlak, Fiqih, Sejarah Kebudayaan Islam, Bahasa Arab, Praktek Ibadah, Mulok
-MDTU 2 : Al-Qur'an, Hadits, Aqidah Akhlak, Fiqih, Sejarah Kebudayaan Islam, Bahasa Arab, Praktek Ibadah, Mulok
-MDTU 3 : Al-Qur'an, Hadits, Aqidah Akhlak, Fiqih, Sejarah Kebudayaan Islam, Bahasa Arab, Praktek Ibadah, Mulok
-MDTU 4 : Al-Qur'an Hadits, Aqidah Akhlak, Fiqih, Sejarah Kebudayaan Islam, Bahasa Arab, Praktik Ibadah, Mulok"""
+    # STANDAR KURIKULUM TERBARU
+    teks_default_nasional = """TKA A : Membaca Al-Qur'an, Hafalan Surah Pendek, Hafalan Doa Harian, Bacaan dan Praktek Sholat, Dinul Islam, Muatan Lokal
+TKA B : Membaca Al-Qur'an, Hafalan Surah Pendek, Hafalan Doa Harian, Bacaan dan Praktek Sholat, Dinul Islam, Muatan Lokal
+TPA A : Membaca Al-Qur'an, Hafalan Surah Pendek, Hafalan Doa Harian, Bacaan dan Praktek Sholat, Dinul Islam, Muatan Lokal
+TPA B : Membaca Al-Qur'an, Hafalan Surah Pendek, Hafalan Doa Harian, Bacaan dan Praktek Sholat, Dinul Islam, Muatan Lokal
+MDTU 1 : Quran, Hadits, Aqidah, Akhlak, Fiqih, Tarikh, Bahasa Arab, Tajwid, Mulok
+MDTU 2 : Quran, Hadits, Aqidah, Akhlak, Fiqih, Tarikh, Bahasa Arab, Tajwid, Mulok
+MDTU 3 : Quran, Hadits, Aqidah, Akhlak, Fiqih, Tarikh, Bahasa Arab, Tajwid, Mulok
+MDTU 4 : Quran, Hadits, Aqidah, Akhlak, Fiqih, Tarikh, Bahasa Arab, Tajwid, Mulok
+MDTW 1 : Quran, Hadits, Aqidah, Akhlak, Fiqih, Tarikh, Bahasa Arab, Tajwid, Mulok
+MDTW 2 : Quran, Hadits, Aqidah, Akhlak, Fiqih, Tarikh, Bahasa Arab, Tajwid, Mulok
+MDTW 3 : Quran, Hadits, Aqidah, Akhlak, Fiqih, Tarikh, Bahasa Arab, Tajwid, Mulok"""
 
     teks_awal = ""
     for kls, mapel_list in kelas_mapel.items():
         teks_awal += f"{kls} : {', '.join(mapel_list)}\n"
         
-    if st.button("🔄 Muat Kurikulum Standar Nasional (TKA & MDTU)"):
+    if st.button("🔄 Muat Kurikulum Standar Nasional (TKA, TPA, MDTU & MDTW)"):
         data_baru = {}
         for line in teks_default_nasional.strip().split('\n'):
             if ":" in line:
@@ -54,7 +58,7 @@ MDTU 4 : Al-Qur'an Hadits, Aqidah Akhlak, Fiqih, Sejarah Kebudayaan Islam, Bahas
     with st.expander("⚙️ Edit / Atur Daftar Kelas & Mata Pelajaran", expanded=True if not kelas_mapel else False):
         with st.form("form_mapel"):
             st.info("💡 **Format:** Nama Kelas : Mata Pelajaran 1, Mata Pelajaran 2, dst.")
-            teks_input = st.text_area("Daftar Kelas & Mata Pelajaran", value=teks_awal.strip(), height=220)
+            teks_input = st.text_area("Daftar Kelas & Mata Pelajaran", value=teks_awal.strip(), height=260)
             if st.form_submit_button("💾 Simpan Pengaturan Kurikulum"):
                 data_baru = {}
                 for line in teks_input.strip().split('\n'):
@@ -153,7 +157,6 @@ MDTU 4 : Al-Qur'an Hadits, Aqidah Akhlak, Fiqih, Sejarah Kebudayaan Islam, Bahas
                         try: tgl_val = datetime.strptime(tgl_str, "%Y-%m-%d").date() if tgl_str else date(1990, 1, 1)
                         except: tgl_val = date(1990, 1, 1)
                         
-                        # Kalender Edit Guru (Tahun Dibuka)
                         e_tgl = st.date_input("Tanggal Lahir", value=tgl_val, min_value=date(1940, 1, 1), max_value=date.today())
                         
                         jks = ["Laki-laki", "Perempuan"]
